@@ -18,6 +18,17 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 	<style>
+		table {
+			border: 2px solid;
+			border-collapse: collapse;
+			width : 500px;
+		}
+
+		td, th {
+			text-align: center;
+			padding: 10px;
+			border: 1px solid;
+		}
 		.image {border : solid;
 			width: 250px;
 			height: 250px;
@@ -28,95 +39,156 @@
 			}
 
 			p {margin : 20px 0 20px 0;}
-			.btn-outline-secondary {margin : 20px auto;}
+			.btn-outline-secondary {margin : 20px auto;
+		}
 		</style>
 
 		<script>
-			function btn_order() {
-				if ($('#nameurl').val()==''){
-					alert ('성함을 입력하세요!');
-					$('#nameurl').focus();
-					return
-				}
-				else if ($('#selecturl').val()=='--수량을 선택하세요--'){
-					alert ('수량을 선택하세요!');
-					$('#selecturl').focus();
-					return
-				}
-				else if ($('#adressurl').val()==''){
-					alert ('주소를 입력하세요!');
-					$('#adressurl').focus();
-					return
-				}
-				else if ($('#numberurl').val()==''){
-					alert ('전화번호를 입력하세요!');
-					$('#numberurl').focus();
-					return
-				}
-				
+			//휴대폰 번호 정규식 표현 함수
+			function phone_number(numberurl) {
+				var regExp = /^01(?:0|1|[6-9])-(?:\d{3}|\d{4})-\d{4}$/;
+				return  regExp.test(numberurl)
 			}
-		</script>
 
-	</head>
-	<body>
-		<div class="wrap">
-			<div class="image">
-				<img src="https://thumbnail14.coupangcdn.com/thumbnails/remote/230x230ex/image/retail/images/14761008202509-1090bc7c-944b-4ece-b81d-1558087e18c4.jpg">
-			</div>
 
-			<div class= "product">
-				<h2>핫팩</h2>
-				<h5>가격:1000원/개</h5>
+		//ajax
 
-				<p>
-					12시간 이상 지속되는 핫팩. 한겨울에도 끄떡 없어요!
-				</p>
-			</div>
+			function btn_order() {
+				//ajax
+				$('#names-q1').html('');
+				$.ajax({
+					type: "GET",
+					url: "https://spartacodingclub.shop/order",
+					data: {},
+					success: function(response){
+						let rows = response["orders"];
+						for (let i = 0; i < orders.length; i++) {
+							let address = rows[i]['address'];
+							let count = rows[i]['count'];
+							let name = rows[i]['name'];
+							let phone = rows[i]['phone'];
+							let temp_html = '<tr>\
+							<td>'+name+'</td>\
+							<td>'+count+'</td>\
+							<td>'+address+'</td>\
+							<td>'+phone+'</td>\
+							</tr>'
+							$('#names-q1').append(temp_html);
+						}
+					}
+				})
 
-			<div class="order">
 
-				<p> ▽▽아래를 채워주세요▽▽ </p>
+        //성함->수량->주소->휴대폰 번호 순으로 공란일 경우 alert +focus
 
-				<div class="input-group mb-3">
-					<div class="input-group-prepend">
-						<span class="input-group-text" id="basic-addon3">주문자 성함 : </span>
-					</div>
-					<input type="text" class="form-control" id="nameurl" aria-describedby="basic-addon3">
-				</div>
 
-				<div class="input-group mb-3">
-					<div class="input-group-prepend">
-						<label class="input-group-text" for="inputGroupSelect01">수량 : </label>
-					</div>
-					<select class="custom-select"  id="selecturl">
-						<option selected>--수량을 선택하세요--</option>
-						<option value="1">1</option>
-						<option value="2">2</option>
-						<option value="3">3</option>
-						<option value="4">4</option>
-						<option value="5">5</option>
-					</select>
-				</div>
+        if ($('#nameurl').val()==''){
+        	alert ('성함을 입력하세요!');
+        	$('#nameurl').focus();
+        	return
+        }
+        else if ($('#selecturl').val()=='--수량을 선택하세요--'){
+        	alert ('수량을 선택하세요!');
+        	$('#selecturl').focus();
+        	return
+        }
+        else if ($('#adressurl').val()==''){
+        	alert ('주소를 입력하세요!');
+        	$('#adressurl').focus();
+        	return
+        }
 
-				<div class="input-group mb-3">
-					<div class="input-group-prepend">
-						<span class="input-group-text" id="basic-addon3">주소 : </span>
-					</div>
-					<input type="text" class="form-control" id="adressurl" aria-describedby="basic-addon3">
-				</div>
+// 휴대폰 번호 칸이 공란일 경우
+else if ($('#numberurl').val()==''){
+	alert ('휴대폰 번호를 입력하세요!');
+	$('#numberurl').focus();
+	return
+}
+//휴대폰 번호 형식이 맞지 않을 경우 010-xxxx-xxxx
+else if (!(phone_number($('#numberurl').val()))){
+	alert ('010-xxxx-xxxx 형식으로 입력해주세요!');
+	$('#numberurl').focus();
+	return
+}
+else {alert('주문이 완료되었습니다!');
 
-				<div class="input-group mb-3">
-					<div class="input-group-prepend">
-						<span class="input-group-text" id="basic-addon3">전화번호 : </span>
-					</div>
-					<input  type="text" class="form-control"  id="numberurl" aria-describedby="basic-addon3">
-				</div>
+}
+}
+</script>
 
-				<button type="button" class="btn btn-secondary btn-lg btn-block btn-outline-secondary " onclick="btn_order()" >주문하기</button>
-			</div>
-			
+</head>
+<body>
+	<div class="wrap">
+		<div class="image">
+			<img src="https://thumbnail14.coupangcdn.com/thumbnails/remote/230x230ex/image/retail/images/14761008202509-1090bc7c-944b-4ece-b81d-1558087e18c4.jpg">
 		</div>
 
+		<div class= "product">
+			<h2>핫팩</h2>
+			<h5>가격:1000원/개</h5>
 
-	</body>
-	</html>
+			<p>
+				12시간 이상 지속되는 핫팩. 한겨울에도 끄떡 없어요!
+			</p>
+		</div>
+
+		<div class="order">
+
+			<p> ▽▽아래를 채워주세요▽▽ </p>
+
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="basic-addon3">주문자 성함 : </span>
+				</div>
+				<input type="text" class="form-control" id="nameurl" aria-describedby="basic-addon3"> 
+			</div>
+
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<label class="input-group-text" for="inputGroupSelect01">수량 : </label>
+				</div>
+				<select class="custom-select"  id="selecturl">
+					<option selected>--수량을 선택하세요--</option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+				</select>
+			</div>
+
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="basic-addon3">주소 : </span>
+				</div>
+				<input type="text" class="form-control" id="adressurl" aria-describedby="basic-addon3">
+			</div>
+
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="basic-addon3">전화번호 : </span>
+				</div>
+				<input  type="text" class="form-control"  id="numberurl" aria-describedby="basic-addon3"> 
+			</div>
+
+			<button type="button" class="btn btn-secondary btn-lg btn-block btn-outline-secondary " onclick="btn_order()" >주문하기</button>
+		</div>
+
+		<table>
+			<thead>
+				<tr>
+					<td>이름</td>
+					<td>수량</td>
+					<td>주소</td>
+					<td>전화번호</td>
+				</tr>
+			</thead>
+			<tbody id="names-q1">
+			</tbody>
+		</table>
+
+	</div>
+
+
+</body>
+</html>
